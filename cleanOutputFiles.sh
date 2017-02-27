@@ -1,33 +1,32 @@
-sed -i -e "1d" pingsOutputs/pingGate.txt
-sed -r -i 's/..........//' pingsOutputs/pingGate.txt
-sed -r -i 's/\b( 2017 64 bytes from)\b//g' pingsOutputs/pingGate.txt
-sed -r -i 's/\b( 192.168.1.1)\b//g' pingsOutputs/pingGate.txt
-sed -i 's/: icmp_seq=/ /g' pingsOutputs/pingGate.txt
-sed -i 's/:/ /g' pingsOutputs/pingGate.txt
-sed -r -i 's/\b(ttl=64 time=)\b//g' pingsOutputs/pingGate.txt
-sed -r -i 's/\b( ms)\b//g' pingsOutputs/pingGate.txt
-sed -r -i 's/ 0/ /g' pingsOutputs/pingGate.txt
-sed -r -i 's/^.//' pingsOutputs/pingGate.txt
+#selects only the necessary fields from raw outputs creating modified files
+awk '{ print $4 $10 $12 }' pingsOutputs/pingGate.txt > pingsOutputs/pingGateMod.txt
+awk '{ print $4 $10 $12 }' pingsOutputs/pingNeighbour.txt > pingsOutputs/pingNeighbourMod.txt
+awk '{ print $4 $10 $12 }' pingsOutputs/pingGoogle.txt > pingsOutputs/pingGoogleMod.txt
 
-sed -i -e "1d" pingsOutputs/pingNeighbour.txt
-sed -r -i 's/..........//' pingsOutputs/pingNeighbour.txt
-sed -r -i 's/\b( 2017 64 bytes from)\b//g' pingsOutputs/pingNeighbour.txt
-sed -r -i 's/\b( 179.184.126.197)\b//g' pingsOutputs/pingNeighbour.txt
-sed -i 's/: icmp_seq=/ /g' pingsOutputs/pingNeighbour.txt
-sed -i 's/:/ /g' pingsOutputs/pingNeighbour.txt
-sed -r -i 's/\b(ttl=63 time=)\b//g' pingsOutputs/pingNeighbour.txt
-sed -r -i 's/\b( ms)\b//g' pingsOutputs/pingNeighbour.txt
-sed -r -i 's/ 0/ /g' pingsOutputs/pingNeighbour.txt
-sed -r -i 's/^.//' pingsOutputs/pingNeighbour.txt
+#do some editing inside the modified files
+sed -i -e "1d" pingsOutputs/pingGateMod.txt
+sed -r -i '/Host/ d' pingsOutputs/pingGateMod.txt
+sed -i 's/icmp_seq=/ /g' pingsOutputs/pingGateMod.txt
+sed -i 's/time=/ /g' pingsOutputs/pingGateMod.txt
+sed -i 's/:/ /g' pingsOutputs/pingGateMod.txt
+sed -r -i 's/^/ /g' pingsOutputs/pingGateMod.txt
+sed -r -i 's/ 0/ /g' pingsOutputs/pingGateMod.txt
+sed -r -i 's/.//' pingsOutputs/pingGateMod.txt
+
+sed -i -e "1d" pingsOutputs/pingNeighbourMod.txt
+sed -r -i '/Host/ d' pingsOutputs/pingNeighbourMod.txt
+sed -i 's/icmp_seq=/ /g' pingsOutputs/pingNeighbourMod.txt
+sed -i 's/time=/ /g' pingsOutputs/pingNeighbourMod.txt
+sed -i 's/:/ /g' pingsOutputs/pingNeighbourMod.txt
+sed -r -i 's/^/ /g' pingsOutputs/pingNeighbourMod.txt
+sed -r -i 's/ 0/ /g' pingsOutputs/pingNeighbourMod.txt
+sed -r -i 's/.//' pingsOutputs/pingNeighbourMod.txt
 
 sed -i -e "1d" pingsOutputs/pingGoogle.txt
-sed -r -i 's/..........//' pingsOutputs/pingGoogle.txt
-sed -r -i 's/\b( 2017 64 bytes from)\b//g' pingsOutputs/pingGoogle.txt
-sed -r -i 's/\b( 8.8.8.8)\b//g' pingsOutputs/pingGoogle.txt
-sed -i 's/: icmp_seq=/ /g' pingsOutputs/pingGoogle.txt
-sed -i 's/:/ /g' pingsOutputs/pingGoogle.txt
-sed -r -i 's/\b(ttl=48 time=)\b//g' pingsOutputs/pingGoogle.txt
-sed -r -i 's/\b( ms)\b//g' pingsOutputs/pingGoogle.txt
-sed -r -i 's/ 0/ /g' pingsOutputs/pingGoogle.txt
-sed -r -i 's/^.//' pingsOutputs/pingGoogle.txt
-
+sed -r -i '/Host/ d' pingsOutputs/pingGoogleMod.txt
+sed -i 's/icmp_seq=/ /g' pingsOutputs/pingGoogleMod.txt
+sed -i 's/time=/ /g' pingsOutputs/pingGoogleMod.txt
+sed -i 's/:/ /g' pingsOutputs/pingGoogleMod.txt
+sed -r -i 's/^/ /g' pingsOutputs/pingGoogleMod.txt
+sed -r -i 's/ 0/ /g' pingsOutputs/pingGoogleMod.txt
+sed -r -i 's/.//' pingsOutputs/pingGoogleMod.txt

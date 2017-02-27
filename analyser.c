@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PINGGATE "pingsOutputs/pingGate.txt"
-#define PINGNEIGHBOUR "pingsOutputs/pingNeighbour.txt"
-#define PINGGOOGLE "pingsOutputs/pingGoogle.txt"
+#define PINGGATE "pingsOutputs/pingGateMod.txt"
+#define PINGNEIGHBOUR "pingsOutputs/pingNeighbourMod.txt"
+#define PINGGOOGLE "pingsOutputs/pingGoogleMod.txt"
 
 typedef struct PingEntry{
 	int hour;
@@ -57,7 +57,7 @@ int main(){
 	
 	//show last and first pings to each host
 	printf("pings to local gateway: \n");
-	showFirstAndLastPingsTimes(ptPingGate, 0);
+	showFirstAndLastPingsTimes(ptPingGate, -1);
 	printf("\n");
 	printf("pings to neighbour gateway: \n");
 	showFirstAndLastPingsTimes(ptPingNeighbour, -1);
@@ -98,7 +98,7 @@ void doAnalysis(FILE *pingsFile, int pingTotal){
 	//values being atributed to the hourMinuteArray, first with 0 values, them real values	
 	int totalHours;
 	totalHours = pingArray[pingTotal-1].hour - pingArray[0].hour + 1;
-	int hourMinuteArray[totalHours][60]; //ta forçando 5 horas precisa mudar
+	int hourMinuteArray[totalHours][60]; 
 	for(i=0;i<totalHours;i++){
 		for(j=0;j<60;j++){
 			hourMinuteArray[i][j]=0;
@@ -114,7 +114,7 @@ void doAnalysis(FILE *pingsFile, int pingTotal){
 	//show results
 	for(i=0;i<totalHours;i++){
 		for(j=0;j<60;j++){
-			printf("%i:%i -> ", i+10, j);
+			printf("%i:%i -> ", i+pingArray[0].hour, j);
 			for(k=0;k<hourMinuteArray[i][j];k++){
 				printf("X");
 			}
@@ -127,7 +127,7 @@ void doAnalysis(FILE *pingsFile, int pingTotal){
 
 
 void showPingArray(PingEntry *pingArray, int pingTotal){
-	for(i=0;i<pingTotal;i++){
+	for(i=0;i<pingTotal-1;i++){
 		printf("%i %i %i %i %.3f\n", pingArray[i].hour, pingArray[i].minute,
 	    pingArray[i].second, pingArray[i].numPacket,
 	    pingArray[i].replyTime);
@@ -228,6 +228,20 @@ int countPings(FILE *pingsFile){
 
 /*
 
+what's new:
+* the cleanOutputFiles script was enhanced with more generalistic assertions
+* the analyser was modified to work with a modified file of the raw ping outputs
+* this makes possible for the original database remain intact
 
+what was illed done:
+* the clean sometimes might consider a ping wich was fired to google or the neighbour
+* but returned from the local gateway as a legitimate result. This  forges in certain
+* manner the quality of response because the internet might be down and the local
+* gateway is reponding for some obscure reason pings issued to the outside. Anyway,
+* this kind of result didn't appear to be very common. Overall the stats are legitimate
+
+potencial change:
+* somewhere it says its possible to pass arguments to the awk and sed scripts this might
+* be the way to let the user choose the IP's he or she want to communicate with
  
 */
