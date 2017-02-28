@@ -22,7 +22,7 @@ sed -r -i 's/^/ /g' pingsOutputs/pingNeighbourMod.txt
 sed -r -i 's/ 0/ /g' pingsOutputs/pingNeighbourMod.txt
 sed -r -i 's/.//' pingsOutputs/pingNeighbourMod.txt
 
-sed -i -e "1d" pingsOutputs/pingGoogle.txt
+sed -i -e "1d" pingsOutputs/pingGoogleMod.txt
 sed -r -i '/Host/ d' pingsOutputs/pingGoogleMod.txt
 sed -i 's/icmp_seq=/ /g' pingsOutputs/pingGoogleMod.txt
 sed -i 's/time=/ /g' pingsOutputs/pingGoogleMod.txt
