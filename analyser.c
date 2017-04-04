@@ -27,6 +27,11 @@ int checkPingMinute(PingEntry ping);
 void createPingArray(FILE *pingsFile, int pingTotal, PingEntry *pingArray);
 void showPingArray(PingEntry *pingArray, int pingTotal);
 
+void menu();
+void showPingsLocalGateway();
+void showPingsNeighbourGateway();
+void showPingsGooglesDNS();
+
 int main(){
 	
 	//open the files containing already treated pings results
@@ -35,58 +40,100 @@ int main(){
 	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
 	ptPingGoogle = fopen(PINGGOOGLE, "rt");
 	
-	//show number of pings for each host
-	int pingsNumberGate, pingsNumberNeighbour, pingsNumberGoogle;
-	pingsNumberGate = countPings(ptPingGate);
-	pingsNumberNeighbour = countPings(ptPingNeighbour);
-	pingsNumberGoogle = countPings(ptPingGoogle);	
-	printf("number of sucessfull pings to the local gateway: %i\n", pingsNumberGate);
-	printf("number of sucessfull pings to the neighbour gateway: %i\n", pingsNumberNeighbour);
-	printf("number of sucessfull pings to Google's DNS server: %i\n", pingsNumberGoogle);
-	printf("\n");
-	
-	//show last sucessfull ping for each host
-	int lastGatePing, lastNeighbourPing, lastGooglePing;
-	lastGatePing = getLastPing(ptPingGate);
-	lastNeighbourPing = getLastPing(ptPingNeighbour);
-	lastGooglePing = getLastPing(ptPingGoogle);
-	printf("last sucessfull ping to local gateway: %i\n", lastGatePing);
-	printf("last sucessfull ping to neighbour gateway: %i\n", lastNeighbourPing);
-	printf("last sucessfull ping to Google's DNS server: %i\n", lastGooglePing);
-	printf("\n");
-	
-	//show last and first pings to each host
-	printf("pings to local gateway: \n");
-	showFirstAndLastPingsTimes(ptPingGate, -1);
-	printf("\n");
-	printf("pings to neighbour gateway: \n");
-	showFirstAndLastPingsTimes(ptPingNeighbour, -1);
-	printf("\n");
-	printf("pings to Goggle's DNS server: \n");
-	showFirstAndLastPingsTimes(ptPingGoogle, -1);
-	printf("\n");
-	getchar();
-	
-	//show analysis
-	printf("detailed analysis of pings to the local gateway: \n");
-	doAnalysis(ptPingGate, pingsNumberGate);
-	printf("\n");
-	getchar();
-	printf("detailed analysis of pings to the neighbour gateway: \n");
-	doAnalysis(ptPingNeighbour, pingsNumberNeighbour);
-	printf("\n");
-	getchar();
-	printf("detailed analysis of pings to Google's DNS server: \n");
-	doAnalysis(ptPingGoogle, pingsNumberGoogle);
-	printf("\n");
-	getchar();
-	
+	menu(ptPingGate, ptPingNeighbour, ptPingGoogle);
+		
 	//closes the files
 	fclose(ptPingGate);
 	fclose(ptPingNeighbour);
 	fclose(ptPingGoogle);
 	
 	return 0;
+}
+
+void menu(){
+	
+	int choice=1;
+
+    do{
+        printf("\n\tPing Analyser\n\n");
+        printf("1. Show pings at local gateway\n");
+        printf("2. Show pings at neighbour gateway\n");
+        printf("3. Show pings at google's DNS server\n");
+        printf("0. Sair\n");
+
+        scanf("%d", &choice);
+        system("clear");
+
+        switch(choice){
+            case 1:
+                showPingsLocalGateway();
+                break;
+
+            case 2:
+                showPingsNeighbourGateway();
+                break;
+
+            case 3:
+                showPingsGooglesDNS();
+                break;
+
+            case 0:
+				printf("Goodbye!");
+                break;
+
+            default:
+                printf("Invalid choice\n");
+        }
+    } while(choice!=0);
+	
+}
+
+void showPingsLocalGateway(){
+	FILE *ptPingGate;
+	int pingsNumberGate;
+
+	ptPingGate = fopen(PINGGATE, "rt");
+	pingsNumberGate = countPings(ptPingGate);
+	
+	printf("detailed analysis of pings to the local gateway: \n");
+	doAnalysis(ptPingGate, pingsNumberGate);
+	printf("\n");
+	
+	getchar();
+	
+	fclose(ptPingGate);	
+}
+	
+void showPingsNeighbourGateway(){
+	FILE *ptPingNeighbour;
+	int pingsNumberNeighbour;
+
+	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
+	pingsNumberNeighbour = countPings(ptPingNeighbour);
+	
+	printf("detailed analysis of pings to the neighbour gateway: \n");
+	doAnalysis(ptPingNeighbour, pingsNumberNeighbour);
+	printf("\n");
+	
+	getchar();
+	
+	fclose(ptPingNeighbour);	
+}
+
+void showPingsGooglesDNS(){
+	FILE *ptPingGoogle;
+	int pingsNumberGoogle;
+
+	ptPingGoogle = fopen(PINGGOOGLE, "rt");
+	pingsNumberGoogle = countPings(ptPingGoogle);
+	
+	printf("detailed analysis of pings to Google's DNS server: \n");
+	doAnalysis(ptPingGoogle, pingsNumberGoogle);
+	printf("\n");
+	
+	getchar();
+	
+	fclose(ptPingGoogle);
 }
 
 void doAnalysis(FILE *pingsFile, int pingTotal){
@@ -121,6 +168,7 @@ void doAnalysis(FILE *pingsFile, int pingTotal){
 			printf("\n");
 		}
 		getchar();
+		system("clear");
 	}	
 	
 }
@@ -227,6 +275,62 @@ int countPings(FILE *pingsFile){
 
 
 /*
+
+//show number of pings for each host
+	int pingsNumberGate, pingsNumberNeighbour, pingsNumberGoogle;
+	pingsNumberGate = countPings(ptPingGate);
+	pingsNumberNeighbour = countPings(ptPingNeighbour);
+	pingsNumberGoogle = countPings(ptPingGoogle);	
+	printf("number of sucessfull pings to the local gateway: %i\n", pingsNumberGate);
+	printf("number of sucessfull pings to the neighbour gateway: %i\n", pingsNumberNeighbour);
+	printf("number of sucessfull pings to Google's DNS server: %i\n", pingsNumberGoogle);
+	printf("\n");
+	
+	//show last sucessfull ping for each host
+	int lastGatePing, lastNeighbourPing, lastGooglePing;
+	lastGatePing = getLastPing(ptPingGate);
+	lastNeighbourPing = getLastPing(ptPingNeighbour);
+	lastGooglePing = getLastPing(ptPingGoogle);
+	printf("last sucessfull ping to local gateway: %i\n", lastGatePing);
+	printf("last sucessfull ping to neighbour gateway: %i\n", lastNeighbourPing);
+	printf("last sucessfull ping to Google's DNS server: %i\n", lastGooglePing);
+	printf("\n");
+	
+	//show last and first pings to each host
+	printf("pings to local gateway: \n");
+	showFirstAndLastPingsTimes(ptPingGate, -1);
+	printf("\n");
+	printf("pings to neighbour gateway: \n");
+	showFirstAndLastPingsTimes(ptPingNeighbour, -1);
+	printf("\n");
+	printf("pings to Goggle's DNS server: \n");
+	showFirstAndLastPingsTimes(ptPingGoogle, -1);
+	printf("\n");
+	getchar();
+	
+	//show analysis
+	printf("detailed analysis of pings to the local gateway: \n");
+	doAnalysis(ptPingGate, pingsNumberGate);
+	printf("\n");
+	getchar();
+	printf("detailed analysis of pings to the neighbour gateway: \n");
+	doAnalysis(ptPingNeighbour, pingsNumberNeighbour);
+	printf("\n");
+	getchar();
+	printf("detailed analysis of pings to Google's DNS server: \n");
+	doAnalysis(ptPingGoogle, pingsNumberGoogle);
+	printf("\n");
+	getchar();
+
+
+
+
+
+
+
+
+
+
 
 what's new:
 * the cleanOutputFiles script was enhanced with more generalistic assertions
