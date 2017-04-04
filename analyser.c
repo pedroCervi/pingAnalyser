@@ -31,22 +31,12 @@ void menu();
 void showPingsLocalGateway();
 void showPingsNeighbourGateway();
 void showPingsGooglesDNS();
+void showOverallData();
 
 int main(){
 	
-	//open the files containing already treated pings results
-	FILE *ptPingGate, *ptPingNeighbour, *ptPingGoogle;
-	ptPingGate = fopen(PINGGATE, "rt");
-	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
-	ptPingGoogle = fopen(PINGGOOGLE, "rt");
-	
-	menu(ptPingGate, ptPingNeighbour, ptPingGoogle);
+	menu();
 		
-	//closes the files
-	fclose(ptPingGate);
-	fclose(ptPingNeighbour);
-	fclose(ptPingGoogle);
-	
 	return 0;
 }
 
@@ -59,6 +49,7 @@ void menu(){
         printf("1. Show pings at local gateway\n");
         printf("2. Show pings at neighbour gateway\n");
         printf("3. Show pings at google's DNS server\n");
+        printf("4. Show overall data\n");
         printf("0. Sair\n");
 
         scanf("%d", &choice);
@@ -76,6 +67,10 @@ void menu(){
             case 3:
                 showPingsGooglesDNS();
                 break;
+            
+            case 4:
+				showOverallData();
+				break;
 
             case 0:
 				printf("Goodbye!");
@@ -86,6 +81,35 @@ void menu(){
         }
     } while(choice!=0);
 	
+}
+
+void showOverallData(){
+	FILE *ptPingGate, *ptPingNeighbour, *ptPingGoogle;
+	ptPingGate = fopen(PINGGATE, "rt");
+	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
+	ptPingGoogle = fopen(PINGGOOGLE, "rt");
+	
+	int pingsNumberGate, pingsNumberNeighbour, pingsNumberGoogle;
+	pingsNumberGate = countPings(ptPingGate);
+	pingsNumberNeighbour = countPings(ptPingNeighbour);
+	pingsNumberGoogle = countPings(ptPingGoogle);	
+	printf("number of sucessfull pings to the local gateway: %i\n", pingsNumberGate);
+	printf("number of sucessfull pings to the neighbour gateway: %i\n", pingsNumberNeighbour);
+	printf("number of sucessfull pings to Google's DNS server: %i\n", pingsNumberGoogle);
+	printf("\n");
+	
+	int lastGatePing, lastNeighbourPing, lastGooglePing;
+	lastGatePing = getLastPing(ptPingGate);
+	lastNeighbourPing = getLastPing(ptPingNeighbour);
+	lastGooglePing = getLastPing(ptPingGoogle);
+	printf("last sucessfull ping to local gateway: %i\n", lastGatePing);
+	printf("last sucessfull ping to neighbour gateway: %i\n", lastNeighbourPing);
+	printf("last sucessfull ping to Google's DNS server: %i\n", lastGooglePing);
+	printf("\n");
+	
+	fclose(ptPingGate);
+	fclose(ptPingNeighbour);
+	fclose(ptPingGoogle);
 }
 
 void showPingsLocalGateway(){
@@ -172,7 +196,6 @@ void doAnalysis(FILE *pingsFile, int pingTotal){
 	}	
 	
 }
-
 
 void showPingArray(PingEntry *pingArray, int pingTotal){
 	for(i=0;i<pingTotal-1;i++){
@@ -307,45 +330,5 @@ int countPings(FILE *pingsFile){
 	showFirstAndLastPingsTimes(ptPingGoogle, -1);
 	printf("\n");
 	getchar();
-	
-	//show analysis
-	printf("detailed analysis of pings to the local gateway: \n");
-	doAnalysis(ptPingGate, pingsNumberGate);
-	printf("\n");
-	getchar();
-	printf("detailed analysis of pings to the neighbour gateway: \n");
-	doAnalysis(ptPingNeighbour, pingsNumberNeighbour);
-	printf("\n");
-	getchar();
-	printf("detailed analysis of pings to Google's DNS server: \n");
-	doAnalysis(ptPingGoogle, pingsNumberGoogle);
-	printf("\n");
-	getchar();
-
-
-
-
-
-
-
-
-
-
-
-what's new:
-* the cleanOutputFiles script was enhanced with more generalistic assertions
-* the analyser was modified to work with a modified file of the raw ping outputs
-* this makes possible for the original database remain intact
-
-what was illed done:
-* the clean sometimes might consider a ping wich was fired to google or the neighbour
-* but returned from the local gateway as a legitimate result. This  forges in certain
-* manner the quality of response because the internet might be down and the local
-* gateway is reponding for some obscure reason pings issued to the outside. Anyway,
-* this kind of result didn't appear to be very common. Overall the stats are legitimate
-
-potencial change:
-* somewhere it says its possible to pass arguments to the awk and sed scripts this might
-* be the way to let the user choose the IP's he or she want to communicate with
- 
+		
 */
