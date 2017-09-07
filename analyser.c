@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PINGGATE "pingsOutputs/pingGateMod.txt"
-#define PINGNEIGHBOUR "pingsOutputs/pingNeighbourMod.txt"
-#define PINGGOOGLE "pingsOutputs/pingGoogleMod.txt"
+#define PINGGATE "pingsOutputs/pingGateModTwo.txt"
+#define PINGNEIGHBOUR "pingsOutputs/pingNeighbourModTwo.txt"
+#define PINGGOOGLE "pingsOutputs/pingGoogleModTwo.txt"
 
 typedef struct PingEntry{
 	int hour;
@@ -88,7 +88,7 @@ void showOverallData(){
 	ptPingGate = fopen(PINGGATE, "rt");
 	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
 	ptPingGoogle = fopen(PINGGOOGLE, "rt");
-	
+
 	int pingsNumberGate, pingsNumberNeighbour, pingsNumberGoogle;
 	pingsNumberGate = countPings(ptPingGate);
 	pingsNumberNeighbour = countPings(ptPingNeighbour);
