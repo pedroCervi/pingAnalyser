@@ -11,7 +11,7 @@ typedef struct PingEntry{
 	int minute;
 	int second;
 	int numPacket;
-	float replyTime;	
+	float replyTime;
 }PingEntry;
 
 PingEntry onePing;
@@ -27,6 +27,10 @@ int checkPingMinute(PingEntry ping);
 void createPingArray(FILE *pingsFile, int pingTotal, PingEntry *pingArray);
 void showPingArray(PingEntry *pingArray, int pingTotal);
 
+void analyseResponseTime();
+void doResponseTimeAnalysisFor(FILE *pingsFile);
+void createResponseTimeAnalysisArray(FILE *pingsFile, int pingTotal, PingEntry *pingArray);
+
 void menu();
 void showPingsLocalGateway();
 void showPingsNeighbourGateway();
@@ -34,14 +38,14 @@ void showPingsGooglesDNS();
 void showOverallData();
 
 int main(){
-	
+
 	menu();
-		
+
 	return 0;
 }
 
 void menu(){
-	
+
 	int choice=1;
 
     do{
@@ -50,6 +54,7 @@ void menu(){
         printf("2. Show pings at neighbour gateway\n");
         printf("3. Show pings at google's DNS server\n");
         printf("4. Show overall data\n");
+        printf("5. Analyse response time\n");
         printf("0. Sair\n");
 
         scanf("%d", &choice);
@@ -67,20 +72,70 @@ void menu(){
             case 3:
                 showPingsGooglesDNS();
                 break;
-            
+
             case 4:
-				showOverallData();
-				break;
+								showOverallData();
+								break;
+
+						case 5:
+								analyseResponseTime();
+								break;
 
             case 0:
-				printf("Goodbye!");
+								printf("Goodbye!");
                 break;
 
             default:
                 printf("Invalid choice\n");
         }
     } while(choice!=0);
-	
+
+}
+
+void analyseResponseTime(){
+	FILE *ptPingGate, *ptPingNeighbour, *ptPingGoogle;
+	ptPingGate = fopen(PINGGATE, "rt");
+	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
+	ptPingGoogle = fopen(PINGGOOGLE, "rt");
+
+	doResponseTimeAnalysisFor(ptPingGate);
+	doResponseTimeAnalysisFor(ptPingNeighbour);
+	doResponseTimeAnalysisFor(ptPingGoogle);
+}
+
+void doResponseTimeAnalysisFor(FILE *pingsFile) {
+	int pingTotal = countPings(pingsFile);
+	PingEntry pingArray[pingTotal];
+
+	createResponseTimeAnalysisArray(pingsFile, pingTotal, pingArray);
+}
+
+void createResponseTimeAnalysisArray(FILE *pingsFile, int pingTotal, PingEntry *pingArray){
+	fseek(pingsFile, 0, SEEK_SET);
+	for(i=0;i<pingTotal;i++){
+		fscanf(pingsFile, "%i", &pingArray[i].hour);
+		fscanf(pingsFile, "%i", &pingArray[i].minute);
+		fscanf(pingsFile, "%i", &pingArray[i].second);
+		fscanf(pingsFile, "%i", &pingArray[i].numPacket);
+		fscanf(pingsFile, "%f", &pingArray[i].replyTime);
+	}
+
+	float totalResponseTime = 0.0;
+	float averageTime = 0.0;
+	int aboveAverage = 0;
+
+	for(i=0;i<pingTotal;i++){
+		totalResponseTime = totalResponseTime + pingArray[i].replyTime;
+		if (pingArray[i].replyTime > 100){
+			aboveAverage++;
+		}
+	}
+
+	averageTime = totalResponseTime / pingTotal;
+
+	printf("Average time: %f\n", averageTime);
+	printf("Number of pings was: %i\n", pingTotal);
+	printf("Number of ping above 100ms were: %i\n", aboveAverage);
 }
 
 void showOverallData(){
@@ -92,12 +147,12 @@ void showOverallData(){
 	int pingsNumberGate, pingsNumberNeighbour, pingsNumberGoogle;
 	pingsNumberGate = countPings(ptPingGate);
 	pingsNumberNeighbour = countPings(ptPingNeighbour);
-	pingsNumberGoogle = countPings(ptPingGoogle);	
+	pingsNumberGoogle = countPings(ptPingGoogle);
 	printf("number of sucessfull pings to the local gateway: %i\n", pingsNumberGate);
 	printf("number of sucessfull pings to the neighbour gateway: %i\n", pingsNumberNeighbour);
 	printf("number of sucessfull pings to Google's DNS server: %i\n", pingsNumberGoogle);
 	printf("\n");
-	
+
 	int lastGatePing, lastNeighbourPing, lastGooglePing;
 	lastGatePing = getLastPing(ptPingGate);
 	lastNeighbourPing = getLastPing(ptPingNeighbour);
@@ -106,7 +161,7 @@ void showOverallData(){
 	printf("last sucessfull ping to neighbour gateway: %i\n", lastNeighbourPing);
 	printf("last sucessfull ping to Google's DNS server: %i\n", lastGooglePing);
 	printf("\n");
-	
+
 	fclose(ptPingGate);
 	fclose(ptPingNeighbour);
 	fclose(ptPingGoogle);
@@ -118,30 +173,30 @@ void showPingsLocalGateway(){
 
 	ptPingGate = fopen(PINGGATE, "rt");
 	pingsNumberGate = countPings(ptPingGate);
-	
+
 	printf("detailed analysis of pings to the local gateway: \n");
 	doAnalysis(ptPingGate, pingsNumberGate);
 	printf("\n");
-	
+
 	getchar();
-	
-	fclose(ptPingGate);	
+
+	fclose(ptPingGate);
 }
-	
+
 void showPingsNeighbourGateway(){
 	FILE *ptPingNeighbour;
 	int pingsNumberNeighbour;
 
 	ptPingNeighbour = fopen(PINGNEIGHBOUR, "rt");
 	pingsNumberNeighbour = countPings(ptPingNeighbour);
-	
+
 	printf("detailed analysis of pings to the neighbour gateway: \n");
 	doAnalysis(ptPingNeighbour, pingsNumberNeighbour);
 	printf("\n");
-	
+
 	getchar();
-	
-	fclose(ptPingNeighbour);	
+
+	fclose(ptPingNeighbour);
 }
 
 void showPingsGooglesDNS(){
@@ -150,38 +205,38 @@ void showPingsGooglesDNS(){
 
 	ptPingGoogle = fopen(PINGGOOGLE, "rt");
 	pingsNumberGoogle = countPings(ptPingGoogle);
-	
+
 	printf("detailed analysis of pings to Google's DNS server: \n");
 	doAnalysis(ptPingGoogle, pingsNumberGoogle);
 	printf("\n");
-	
+
 	getchar();
-	
+
 	fclose(ptPingGoogle);
 }
 
 void doAnalysis(FILE *pingsFile, int pingTotal){
-	
+
 	//creation of the ping array
 	PingEntry pingArray[pingTotal];
 	createPingArray(pingsFile, pingTotal, pingArray);
-		
-	//values being atributed to the hourMinuteArray, first with 0 values, them real values	
+
+	//values being atributed to the hourMinuteArray, first with 0 values, them real values
 	int totalHours;
 	totalHours = pingArray[pingTotal-1].hour - pingArray[0].hour + 1;
-	int hourMinuteArray[totalHours][60]; 
+	int hourMinuteArray[totalHours][60];
 	for(i=0;i<totalHours;i++){
 		for(j=0;j<60;j++){
 			hourMinuteArray[i][j]=0;
 		}
-	}	
+	}
 	int tmpHour=0, tmpMinute=0;
 	for(i=0;i<pingTotal;i++){
 		tmpHour = pingArray[i].hour;
 		tmpMinute = pingArray[i].minute;
 		hourMinuteArray[tmpHour-pingArray[0].hour][tmpMinute]++;
 	}
-	
+
 	//show results
 	for(i=0;i<totalHours;i++){
 		for(j=0;j<60;j++){
@@ -193,8 +248,8 @@ void doAnalysis(FILE *pingsFile, int pingTotal){
 		}
 		getchar();
 		system("clear");
-	}	
-	
+	}
+
 }
 
 void showPingArray(PingEntry *pingArray, int pingTotal){
@@ -202,7 +257,7 @@ void showPingArray(PingEntry *pingArray, int pingTotal){
 		printf("%i %i %i %i %.3f\n", pingArray[i].hour, pingArray[i].minute,
 	    pingArray[i].second, pingArray[i].numPacket,
 	    pingArray[i].replyTime);
-	}	
+	}
 }
 
 void createPingArray(FILE *pingsFile, int pingTotal, PingEntry *pingArray){
@@ -238,7 +293,7 @@ void showFirstAndLastPingsTimes(FILE *pingsFile, int gamb){
 	second = onePing.second;
 	printf("1st sucessfull ping at: %i:%i:%i\n", hour, minute, second);
 	fseek(pingsFile, 1, SEEK_END);
-	fseek(pingsFile, -sizeof(onePing)+gamb, SEEK_CUR); 
+	fseek(pingsFile, -sizeof(onePing)+gamb, SEEK_CUR);
 	fscanf(pingsFile, "%i", &onePing.hour);
 	fscanf(pingsFile, "%i", &onePing.minute);
 	fscanf(pingsFile, "%i", &onePing.second);
@@ -265,7 +320,7 @@ void showUnsucessfullPings(FILE *pingsFile, int lastPingNumber, int numberOfPing
 		if(pingsArray[i]!=1){
 			printf("ping %i falhou\n", i);
 		}
-	}	
+	}
 }
 
 int getLastPing(FILE *pingsFile){
@@ -279,14 +334,14 @@ int getLastPing(FILE *pingsFile){
 	return onePing.numPacket;
 }
 
-int countPings(FILE *pingsFile){	
-	char checkChar; 
-	int pingsNumber=0; 
+int countPings(FILE *pingsFile){
+	char checkChar;
+	int pingsNumber=0;
 	while((checkChar=fgetc(pingsFile)) != EOF){
 		if(checkChar=='\n'){
 			pingsNumber++;
 		}
-	}	
+	}
 	return pingsNumber;
 }
 
@@ -294,7 +349,7 @@ int countPings(FILE *pingsFile){
 //showUnsucessfullPings(ptPingGate, lastGatePing, pingsNumberGate);
 //showUnsucessfullPings(ptPingNeighbour, lastNeighbourPing, pingsNumberNeighbour);
 //showUnsucessfullPings(ptPingGoogle, lastGooglePing, pingsNumberGoogle);
-	
+
 
 
 /*
@@ -303,12 +358,12 @@ int countPings(FILE *pingsFile){
 	int pingsNumberGate, pingsNumberNeighbour, pingsNumberGoogle;
 	pingsNumberGate = countPings(ptPingGate);
 	pingsNumberNeighbour = countPings(ptPingNeighbour);
-	pingsNumberGoogle = countPings(ptPingGoogle);	
+	pingsNumberGoogle = countPings(ptPingGoogle);
 	printf("number of sucessfull pings to the local gateway: %i\n", pingsNumberGate);
 	printf("number of sucessfull pings to the neighbour gateway: %i\n", pingsNumberNeighbour);
 	printf("number of sucessfull pings to Google's DNS server: %i\n", pingsNumberGoogle);
 	printf("\n");
-	
+
 	//show last sucessfull ping for each host
 	int lastGatePing, lastNeighbourPing, lastGooglePing;
 	lastGatePing = getLastPing(ptPingGate);
@@ -318,7 +373,7 @@ int countPings(FILE *pingsFile){
 	printf("last sucessfull ping to neighbour gateway: %i\n", lastNeighbourPing);
 	printf("last sucessfull ping to Google's DNS server: %i\n", lastGooglePing);
 	printf("\n");
-	
+
 	//show last and first pings to each host
 	printf("pings to local gateway: \n");
 	showFirstAndLastPingsTimes(ptPingGate, -1);
@@ -330,5 +385,5 @@ int countPings(FILE *pingsFile){
 	showFirstAndLastPingsTimes(ptPingGoogle, -1);
 	printf("\n");
 	getchar();
-		
+
 */
